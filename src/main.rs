@@ -50,12 +50,12 @@ impl Environment
 {
     fn new() -> Environment
     {
-        let host = env::var("HOSTNAME").unwrap_or("sensor_reader".into());
-        let mqtt_user = env::var("MQTT_USER").unwrap_or("MOSQUITTO".into());
-        let mqtt_password = env::var("MQTT_PASSWORD").unwrap_or("PASSWORD".into());
+        let host = env::var("HOSTNAME").unwrap();
+        let mqtt_user = env::var("MQTT_USER").unwrap();
+        let mqtt_password = env::var("MQTT_PASSWORD").unwrap();
         let mqtt_host = env::var("MQTT_HOST").unwrap();
         let mqtt_port = parse(env::var("MQTT_PORT"), 8883i32);
-        let topic = env::var("MQTT_TOPIC").unwrap_or("HOME_SENSORS".into());
+        let topic = env::var("MQTT_TOPIC").unwrap();
         let qos = parse(env::var("MQTT_QOS"), 1i32);
         let interval = parse(env::var("MQTT_READ_INTERVAL"), 10.0f32);
         let ca_cert = env::var("CA_CERT").map(PathBuf::from).unwrap();
@@ -89,7 +89,7 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
 {
     eprintln!("Setting up client options");
     let options = paho_mqtt::CreateOptionsBuilder::new()
-        .server_uri(format!("{}:{}", &ENVIRONMENT.host, &ENVIRONMENT.mqtt_port))
+        .server_uri(format!("tcp://{}:{}", &ENVIRONMENT.host, &ENVIRONMENT.mqtt_port))
         .client_id(&ENVIRONMENT.host)
         .finalize();
 
