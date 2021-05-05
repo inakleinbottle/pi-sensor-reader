@@ -57,7 +57,7 @@ impl Environment
         let host = env::var("HOSTNAME")
             .expect("Could not read HOSTNAME");
         let mqtt_user = env::var("MQTT_USER")
-            .exect("Could not read MQTT_USER");
+            .expect("Could not read MQTT_USER");
         let mqtt_password = env::var("MQTT_PASSWORD")
             .expect("MQTT_PASSWORD");
         let mqtt_host = env::var("MQTT_HOST")
