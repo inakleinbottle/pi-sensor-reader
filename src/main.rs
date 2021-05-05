@@ -45,9 +45,9 @@ struct Environment
     interval: f32,
     ca_cert: PathBuf,
 
-    client_cert: PathBuf,
-    client_cert_key: PathBuf,
-    client_cert_key_pass: String
+    client_cert: Option<PathBuf>,
+    client_cert_key: Option<PathBuf>,
+    client_cert_key_pass: Option<String>
 }
 
 impl Environment
@@ -70,11 +70,11 @@ impl Environment
         let ca_cert = env::var("CA_CERT").map(PathBuf::from)
             .expect("Could not read CA_CERT");
         let client_cert = env::var("CLIENT_CERT").map(PathBuf::from)
-            .expect("Could not read CLIENT_CERT");
+            .ok();
         let client_cert_key = env::var("CLIENT_CERT_KEY").map(PathBuf::from)
-            .expect("Could not read CLIENT_CERT_KEY");
+            .ok();
         let client_cert_key_pass = env::var("CLIENT_CERT_KEY_PASS")
-            .expect("Could not read CLIENT_CERT_KEY_PASS");
+            .ok();
 
         Environment {
             host,
@@ -110,13 +110,22 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
     let client = paho_mqtt::Client::new(options)?;
 
     eprintln!("Setting up SSL options");
-    let ssl_options = paho_mqtt::SslOptionsBuilder::new()
-        .ssl_version(paho_mqtt::SslVersion::Tls_1_2)
-        .ca_path(&ENVIRONMENT.ca_cert)?
-        .key_store(&ENVIRONMENT.client_cert)?
-        .private_key(&ENVIRONMENT.client_cert_key)?
-        .private_key_password(&ENVIRONMENT.client_cert_key_pass)
-        .finalize();
+    let mut ssl_options_builder = paho_mqtt::SslOptionsBuilder::new();
+
+    ssl_options_builder.ssl_version(paho_mqtt::SslVersion::Tls_1_2)
+        .ca_path(&ENVIRONMENT.ca_cert)?;
+
+    if let Some(ref client_cert) = &ENVIRONMENT.client_cert {
+        if let Some(ref client_key) = &ENVIRONMENT.client_cert_key {
+            if let Some(ref client_key_pass) = &ENVIRONMENT.client_cert_key_pass {
+                ssl_options_builder.key_store(&ENVIRONMENT.client_cert)?
+                    .private_key(&ENVIRONMENT.client_cert_key)?
+                    .private_key_password(&ENVIRONMENT.client_cert_key_pass);
+            }
+        }
+    }
+
+    let ssl_options = ssl_options_builder.finalize();
 
     eprintln!("Creating connect options");
 
