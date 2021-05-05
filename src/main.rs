@@ -115,7 +115,7 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
             .automatic_reconnect(Duration::from_secs(1), Duration::from_secs(10))
             .retry_interval(Duration::from_secs(5))
             .finalize()
-    )?;
+    ).unwrap();
 
     eprintln!("Connected");
 
