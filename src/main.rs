@@ -103,6 +103,7 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
         .key_store(&ENVIRONMENT.client_cert)?
         .enable_server_cert_auth(false)
         .private_key(&ENVIRONMENT.client_cert_key)?
+        .private_key_password(&ENVIRONMENT.client_cert_key_pass)
         .finalize();
 
     eprintln!("Connecting");
