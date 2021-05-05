@@ -233,7 +233,7 @@ impl Sensor for DS18B20Sensor {
         _ => return DS18B20Reading::new(f32::NAN)
         };
 
-        DS18B20Reading::new(itemp as f32)
+        DS18B20Reading::new((itemp as f32) / 1000.0f32)
     }
 
     fn read_to_string(&self) -> String
