@@ -100,10 +100,9 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
     let ssl_options = paho_mqtt::SslOptionsBuilder::new()
         .ssl_version(paho_mqtt::SslVersion::Tls_1_2)
         .ca_path(&ENVIRONMENT.ca_cert)?
-        .key_store(&ENVIRONMENT.client_cert)?
-        .enable_server_cert_auth(false)
-        .private_key(&ENVIRONMENT.client_cert_key)?
-        .private_key_password(&ENVIRONMENT.client_cert_key_pass)
+        //.key_store(&ENVIRONMENT.client_cert)?
+        //.private_key(&ENVIRONMENT.client_cert_key)?
+        //.private_key_password(&ENVIRONMENT.client_cert_key_pass)
         .finalize();
 
     eprintln!("Creating connect options");
