@@ -151,7 +151,11 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
 
 trait Sensor
 {
+    type ReadingType: Serialize;
+
     fn identifier(&self) -> &str;
+    fn read(&self) -> Self::ReadingType;
+
     fn read_to_string(&self) -> String;
 }
 
@@ -183,52 +187,58 @@ impl DS18B20Sensor {
 
 impl Sensor for DS18B20Sensor {
 
+    type ReadingType = DS18B20Reading;
+
     fn identifier(&self) -> &str
     {
          &self.id
     }
 
-    fn read_to_string(&self) -> String
+    fn read(&self) -> Self::ReadingType
     {
         let path = DS18B20_DEVICE_PATH.join(&self.id).join("w1_slave");
 
         let string_contents: String = match fs::read(&path) {
-            Ok(contents) => {
-                String::from_utf8(contents).unwrap_or("".into())
-            },
-            Err(_) => {
-                return serde_json::to_string(&DS18B20Reading::new(f32::NAN)).unwrap();
-            }
+        Ok(contents) => {
+        String::from_utf8(contents).unwrap_or("".into())
+        },
+        Err(_) => {
+        return DS18B20Reading::new(f32::NAN);
+        }
         };
 
         // This is a really naive implementation, needs more robustness
         if string_contents.is_empty() {
-            return serde_json::to_string(&DS18B20Reading::new(f32::NAN)).unwrap();
+        return DS18B20Reading::new(f32::NAN);
         }
 
         let mut lines = string_contents.lines();
 
         let line1 = match lines.next() {
-            Some(line) => line,
-            None => return serde_json::to_string(&DS18B20Reading::new(f32::NAN)).unwrap()
+        Some(line) => line,
+        None => return DS18B20Reading::new(f32::NAN)
         };
 
         let line2 = match lines.next() {
-            Some(line) => line,
-            None => return serde_json::to_string(&DS18B20Reading::new(f32::NAN)).unwrap()
+        Some(line) => line,
+        None => return DS18B20Reading::new(f32::NAN)
         };
 
         if !line1.ends_with("YES") {
-            return serde_json::to_string(&DS18B20Reading::new(f32::NAN)).unwrap()
+        return DS18B20Reading::new(f32::NAN)
         }
 
         let itemp: i32 = match line2.rsplit('=').next().map(i32::from_str) {
-            Some(Ok(v)) => v,
-            _ => return serde_json::to_string(&DS18B20Reading::new(f32::NAN)).unwrap()
+        Some(Ok(v)) => v,
+        _ => return DS18B20Reading::new(f32::NAN)
         };
 
+        DS18B20Reading::new(item as f32)
+    }
 
-        let reading = DS18B20Reading::new((itemp as f32) / 1000.0f32);
+    fn read_to_string(&self) -> String
+    {
+        let reading = self.read();
         serde_json::to_string(&reading).unwrap()
     }
 }
@@ -269,10 +279,10 @@ fn main() -> Result<(), Box<dyn Error>>
     loop {
         thread::sleep(wait_time);
 
-        let mut readings = HashMap::new();
+        let mut readings: HashMap<&str, Box<dyn Serialize>> = HashMap::new();
 
         for sensor in &sensors {
-            readings.insert(sensor.identifier(), sensor.read_to_string());
+            readings.insert(sensor.identifier(), Box::new(sensor.read()));
         }
 
         let message = paho_mqtt::Message::new(
