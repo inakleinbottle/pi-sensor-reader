@@ -54,18 +54,27 @@ impl Environment
 {
     fn new() -> Environment
     {
-        let host = env::var("HOSTNAME").unwrap();
-        let mqtt_user = env::var("MQTT_USER").unwrap();
-        let mqtt_password = env::var("MQTT_PASSWORD").unwrap();
-        let mqtt_host = env::var("MQTT_HOST").unwrap();
+        let host = env::var("HOSTNAME")
+            .expect("Could not read HOSTNAME");
+        let mqtt_user = env::var("MQTT_USER")
+            .exect("Could not read MQTT_USER");
+        let mqtt_password = env::var("MQTT_PASSWORD")
+            .expect("MQTT_PASSWORD");
+        let mqtt_host = env::var("MQTT_HOST")
+            .expect("MQTT_HOST");
         let mqtt_port = parse(env::var("MQTT_PORT"), 8883i32);
-        let topic = env::var("MQTT_TOPIC").unwrap();
+        let topic = env::var("MQTT_TOPIC")
+            .expect("MQTT_TOPIC");
         let qos = parse(env::var("MQTT_QOS"), 1i32);
         let interval = parse(env::var("MQTT_READ_INTERVAL"), 10.0f32);
-        let ca_cert = env::var("CA_CERT").map(PathBuf::from).unwrap();
-        let client_cert = env::var("CLIENT_CERT").map(PathBuf::from).unwrap();
-        let client_cert_key = env::var("CLIENT_CERT_KEY").map(PathBuf::from).unwrap();
-        let client_cert_key_pass = env::var("CLIENT_CERT_KEY_PASS").unwrap();
+        let ca_cert = env::var("CA_CERT").map(PathBuf::from)
+            .expect("Could not read CA_CERT");
+        let client_cert = env::var("CLIENT_CERT").map(PathBuf::from)
+            .expect("Could not read CLIENT_CERT");
+        let client_cert_key = env::var("CLIENT_CERT_KEY").map(PathBuf::from)
+            .expect("Could not read CLIENT_CERT_KEY");
+        let client_cert_key_pass = env::var("CLIENT_CERT_KEY_PASS")
+            .expect("Could not read CLIENT_CERT_KEY_PASS");
 
         Environment {
             host,
