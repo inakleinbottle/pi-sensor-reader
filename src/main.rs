@@ -117,6 +117,7 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
             .finalize()
     )?;
 
+    eprintln!("Connected");
 
     Ok(client)
 }
