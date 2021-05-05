@@ -21,7 +21,11 @@ fn parse<S: FromStr, E>(input: Result<String, E>, default: S) -> S
     if let Ok(val) = input {
         if let Ok(update) = S::from_str(&val) {
             result = update;
+        } else {
+            eprintln!("Error unpacking {}", val);
         }
+    } else {
+        panic!("Error unpacking");
     }
     result
 }
