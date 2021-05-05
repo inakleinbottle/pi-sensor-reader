@@ -112,8 +112,9 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
     eprintln!("Setting up SSL options");
     let mut ssl_options_builder = paho_mqtt::SslOptionsBuilder::new();
 
-    ssl_options_builder.ssl_version(paho_mqtt::SslVersion::Tls_1_2)
-        .ca_path(&ENVIRONMENT.ca_cert)?;
+    ssl_options_builder
+        .ssl_version(paho_mqtt::SslVersion::Tls_1_2)
+        .trust_store(&ENVIRONMENT.ca_cert)?;
 
     if let Some(ref client_cert) = &ENVIRONMENT.client_cert {
         if let Some(ref client_key) = &ENVIRONMENT.client_cert_key {
