@@ -102,7 +102,7 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
 {
     eprintln!("Setting up client options");
     let options = paho_mqtt::CreateOptionsBuilder::new()
-        .server_uri(format!("tcp://{}:{}", &ENVIRONMENT.mqtt_host, &ENVIRONMENT.mqtt_port))
+        .server_uri(format!("ssl://{}:{}", &ENVIRONMENT.mqtt_host, &ENVIRONMENT.mqtt_port))
         .client_id(&ENVIRONMENT.host)
         .finalize();
 
