@@ -233,7 +233,7 @@ impl Sensor for DS18B20Sensor {
         _ => return DS18B20Reading::new(f32::NAN)
         };
 
-        DS18B20Reading::new(item as f32)
+        DS18B20Reading::new(itemp as f32)
     }
 
     fn read_to_string(&self) -> String
@@ -243,9 +243,9 @@ impl Sensor for DS18B20Sensor {
     }
 }
 
-fn get_sensors() -> Result<Vec<Box<dyn Sensor>>, Box<dyn Error> >
+fn get_sensors() -> Result<Vec<Box<dyn Sensor<ReadingType = DS18B20Reading>>>, Box<dyn Error> >
 {
-    let mut result: Vec<Box<dyn Sensor>> = Vec::new();
+    let mut result: Vec<Box<dyn Sensor<ReadingType = _>>> = Vec::new();
 
     for device in fs::read_dir(&DS18B20_DEVICE_PATH.as_path())? {
         if let Ok(dev) = device {
@@ -279,7 +279,7 @@ fn main() -> Result<(), Box<dyn Error>>
     loop {
         thread::sleep(wait_time);
 
-        let mut readings: HashMap<&str, Box<dyn Serialize>> = HashMap::new();
+        let mut readings: HashMap<&str, Box<DS18B20Reading>> = HashMap::new();
 
         for sensor in &sensors {
             readings.insert(sensor.identifier(), Box::new(sensor.read()));
