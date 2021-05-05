@@ -106,15 +106,20 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
         .private_key_password(&ENVIRONMENT.client_cert_key_pass)
         .finalize();
 
+    eprintln!("Creating connect options");
+
+    let connect_options = paho_mqtt::ConnectOptionsBuilder::new()
+        .user_name(&ENVIRONMENT.mqtt_user)
+        .password(&ENVIRONMENT.mqtt_password)
+        .ssl_options(ssl_options)
+        .automatic_reconnect(Duration::from_secs(1), Duration::from_secs(10))
+        .retry_interval(Duration::from_secs(5))
+        .finalize();
+
     eprintln!("Connecting");
+
     client.connect(
-        paho_mqtt::ConnectOptionsBuilder::new()
-            .user_name(&ENVIRONMENT.mqtt_user)
-            .password(&ENVIRONMENT.mqtt_password)
-            .ssl_options(ssl_options)
-            .automatic_reconnect(Duration::from_secs(1), Duration::from_secs(10))
-            .retry_interval(Duration::from_secs(5))
-            .finalize()
+        connect_options
     ).unwrap();
 
     eprintln!("Connected");
