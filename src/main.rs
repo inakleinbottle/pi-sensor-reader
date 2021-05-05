@@ -118,9 +118,9 @@ fn get_client() -> Result<paho_mqtt::Client, Box<dyn Error>>
     if let Some(ref client_cert) = &ENVIRONMENT.client_cert {
         if let Some(ref client_key) = &ENVIRONMENT.client_cert_key {
             if let Some(ref client_key_pass) = &ENVIRONMENT.client_cert_key_pass {
-                ssl_options_builder.key_store(&ENVIRONMENT.client_cert)?
-                    .private_key(&ENVIRONMENT.client_cert_key)?
-                    .private_key_password(&ENVIRONMENT.client_cert_key_pass);
+                ssl_options_builder.key_store(client_cert)?
+                    .private_key(&client_key)?
+                    .private_key_password(client_key_pass);
             }
         }
     }
